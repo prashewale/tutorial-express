@@ -5,8 +5,8 @@
     "useDefineForClassFields": true,
     "lib": ["ES6"],
     /* Modules */
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "Node16",
+    "moduleResolution": "node16",
     "esModuleInterop": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
@@ -22,9 +22,8 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "outDir": "./dist",
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["./src/*"]
     }
   },
 
