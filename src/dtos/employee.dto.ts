@@ -11,3 +11,11 @@ export type UpdateEmployeeDto = {
   department?: string;
   salary?: number;
 };
+
+export type EmployeeDto = {
+  id: number;
+  name: string;
+  email: string;
+  department: string;
+  salary: string;
+};
