@@ -17,5 +17,5 @@ export type EmployeeDto = {
   name: string;
   email: string;
   department: string;
-  salary: string;
+  salary: number;
 };

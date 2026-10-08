@@ -39,31 +39,39 @@ export class MockEmployeeRepository implements IEmployeeRepository {
     },
   ];
 
-  async findAll(): Promise<Employee[]> {
-    return this.employees;
+  async findAll(searchText?: string): Promise<Employee[]> {
+    const activeEmployees = this.employees.filter(
+      (emp) => emp.isActive && !emp.isDeleted,
+    );
+
+    if (searchText) {
+      const lowerSearchText = searchText.toLowerCase();
+
+      return activeEmployees.filter(
+        (emp) =>
+          emp.name.toLowerCase().includes(lowerSearchText) ||
+          emp.email.toLowerCase().includes(lowerSearchText) ||
+          emp.department.toLowerCase().includes(lowerSearchText),
+      );
+    }
+
+    return activeEmployees;
   }
 
   async findById(id: number): Promise<Employee | null> {
     return this.employees.find((e) => e.id === id) || null;
   }
 
-  async create(employee: CreateEmployeeDto): Promise<Employee> {
+  async create(employee: Employee): Promise<Employee> {
     const newEmployee: Employee = {
-      id: this.employees.length + 1,
       ...employee,
-      createdAt: new Date(),
-      createdBy: "system",
-      isActive: true,
-      isDeleted: false,
+      id: this.employees.length + 1,
     };
     this.employees.push(newEmployee);
     return newEmployee;
   }
 
-  async update(
-    id: number,
-    employee: UpdateEmployeeDto,
-  ): Promise<Employee | null> {
+  async update(id: number, employee: Employee): Promise<Employee | null> {
     const availableEmployee = this.employees.find((e) => e.id === id);
     if (!availableEmployee) {
       return null;
@@ -74,9 +82,6 @@ export class MockEmployeeRepository implements IEmployeeRepository {
     availableEmployee.department =
       employee.department ?? availableEmployee.department;
     availableEmployee.salary = employee.salary ?? availableEmployee.salary;
-
-    availableEmployee.lastModifiedAt = new Date();
-    availableEmployee.lastModifiedBy = "system";
 
     return availableEmployee;
   }

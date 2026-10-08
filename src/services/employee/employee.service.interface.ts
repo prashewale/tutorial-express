@@ -1,8 +1,8 @@
 import { CreateEmployeeDto, UpdateEmployeeDto } from "@/dtos/employee.dto";
-import { EmployeeDto } from "@/models/employee.model";
+import { EmployeeDto } from "@/dtos/employee.dto";
 
 export interface IEmployeeService {
-  getAllEmployees(): Promise<EmployeeDto[]>;
+  getAllEmployees(searchText?: string): Promise<EmployeeDto[]>;
   getEmployeeById(id: number): Promise<EmployeeDto | null>;
   createEmployee(employee: CreateEmployeeDto): Promise<EmployeeDto>;
   updateEmployee(
