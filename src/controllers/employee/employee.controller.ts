@@ -1,6 +1,8 @@
 import { CreateEmployeeDto, EmployeeDto } from "@/dtos/employee.dto";
 import { IEmployeeService } from "@/services/employee/employee.service.interface";
+import { createEmployeeSchema } from "@/validators/employee.schema";
 import { Request, Response } from "express";
+import z from "zod";
 
 export class EmployeeController {
   private readonly _employeeService: IEmployeeService;
@@ -13,39 +15,81 @@ export class EmployeeController {
 
     const availableEmployees =
       await this._employeeService.getAllEmployees(searchText);
-    res.json(availableEmployees);
+
+    const apiResponse = {
+      status: "SUCCESS",
+      message: "Employees retrieved successfully",
+      data: availableEmployees,
+    };
+
+    res.json(apiResponse);
   }
 
   async getEmployeeById(req: Request, res: Response): Promise<void> {
     const id = parseInt(req.params.id.toString(), 10);
-    const employee = await this._employeeService.getEmployeeById(id);
-    if (!employee) {
-      res.status(404).json({ message: "Employee not found" });
+
+    if (isNaN(id)) {
+      const apiResponse = {
+        status: "FAILURE",
+        message: "Invalid employee ID",
+      };
+      res.status(400).json(apiResponse);
       return;
     }
-    res.json(employee);
+
+    const employee = await this._employeeService.getEmployeeById(id);
+    if (!employee) {
+      const apiResponse = {
+        status: "FAILURE",
+        message: "Employee not found",
+      };
+
+      res.status(404).json(apiResponse);
+      return;
+    }
+
+    const apiResponse = {
+      status: "SUCCESS",
+      message: "Employee retrieved successfully",
+      data: employee,
+    };
+
+    res.json(apiResponse);
   }
 
   async createEmployee(req: Request, res: Response): Promise<void> {
     const employeeData = req.body as CreateEmployeeDto;
 
-    if (!employeeData) {
-      res.status(400).json({ message: "Request body is missing" });
-      return;
-    }
+    // try {
+    //   createEmployeeSchema.parse(employeeData);
+    // } catch (error) {
+    //   res.status(400).json({
+    //     message: "Invalid employee data",
+    //     errors: (error as z.ZodError).flatten(),
+    //   });
+    //   return;
+    // }
 
-    if (
-      !employeeData.name ||
-      !employeeData.email ||
-      !employeeData.department ||
-      !employeeData.salary
-    ) {
-      res.status(400).json({ message: "Missing required fields" });
+    const result = createEmployeeSchema.safeParse(employeeData);
+
+    if (!result.success) {
+      const apiResponse = {
+        status: "FAILURE",
+        message: "Invalid employee data",
+        errors: result.error.flatten(),
+      };
+      res.status(400).json(apiResponse);
       return;
     }
 
     const newEmployee =
       await this._employeeService.createEmployee(employeeData);
-    res.status(201).json(newEmployee);
+
+    const apiResponse = {
+      status: "SUCCESS",
+      message: "Employee created successfully",
+      data: newEmployee,
+    };
+    res.status(201).json(apiResponse);
   }
 }
